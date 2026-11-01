@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Quill nib: simple diagonal quill over a code line -->
+    <path
+        android:fillColor="#C9A227"
+        android:pathData="M62,30 L74,42 L48,68 L34,74 L40,60 Z" />
+    <path
+        android:fillColor="#E5C558"
+        android:pathData="M62,30 L74,42 L66,50 L54,38 Z" />
+    <path
+        android:strokeColor="#89B4FA"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M34,80 L56,80 M34,88 L48,88" />
+</vector>
