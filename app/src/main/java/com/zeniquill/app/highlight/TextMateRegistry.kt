@@ -17,7 +17,7 @@ import org.eclipse.tm4e.core.registry.IThemeSource
 
 /**
  * Central bootstrap for TextMate grammars and editor themes.
- * Asset layout mirrors Xed-Editor (GPL-3.0): assets/textmate/<lang>/syntaxes/*.tmLanguage.json
+ * Asset layout mirrors Xed-Editor (GPL-3.0): assets/textmate/<lang>/syntaxes/<name>.tmLanguage.json
  */
 object TextMateRegistry {
 

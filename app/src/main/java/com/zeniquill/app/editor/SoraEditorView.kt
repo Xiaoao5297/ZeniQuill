@@ -2,6 +2,7 @@ package com.zeniquill.app.editor
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,30 +30,30 @@ fun SoraEditorView(
     // A new tab (different uri) must create a fresh editor instance.
     val editorKey = remember(tab.uri) { tab.uri.toString() }
 
-    AndroidView(
-        modifier = Modifier.fillMaxSize(),
-        factory = { ctx ->
-            CodeEditor(ctx).apply {
-                typefaceText = android.graphics.Typeface.MONOSPACE
-                setText(tab.initialContent)
-                setEditorLanguage(TextMateRegistry.createLanguageBlocking(tab.language, ctx))
-                subscribeEvent(io.github.rosemoe.sora.event.ContentChangeEvent::class.java) { event, _ ->
-                    onContentChanged(event.editor.text.toString())
+    key(editorKey) {
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { ctx ->
+                CodeEditor(ctx).apply {
+                    typefaceText = android.graphics.Typeface.MONOSPACE
+                    setText(tab.initialContent)
+                    setEditorLanguage(TextMateRegistry.createLanguageBlocking(tab.language, ctx))
+                    subscribeEvent(io.github.rosemoe.sora.event.ContentChangeEvent::class.java) { event, _ ->
+                        onContentChanged(event.editor.text.toString())
+                    }
+                    props.stickyScroll = false
+                    getComponent(Magnifier::class.java).isEnabled = true
                 }
-                props.stickyScroll = false
-                getComponent(Magnifier::class.java).isEnabled = true
-            }
-        },
-        update = { editor ->
-            editor.setTextSize(fontSize.toFloat())
-            editor.setTabWidth(tabWidth)
-            editor.setWordwrap(wordWrap)
-            editor.setLineNumberEnabled(showLineNumbers)
-            editor.setColorScheme(
-                TextMateColorScheme.create(TextMateRegistry.createThemeBlocking(context, darkTheme))
-            )
-        },
-        // `editorKey` forces recreation when the document changes (v0.1: single tab swap).
-        key = editorKey,
-    )
+            },
+            update = { editor ->
+                editor.setTextSize(fontSize.toFloat())
+                editor.setTabWidth(tabWidth)
+                editor.setWordwrap(wordWrap)
+                editor.setLineNumberEnabled(showLineNumbers)
+                editor.setColorScheme(
+                    TextMateColorScheme.create(TextMateRegistry.createThemeBlocking(context, darkTheme))
+                )
+            },
+        )
+    }
 }

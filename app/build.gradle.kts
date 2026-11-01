@@ -76,6 +76,7 @@ dependencies {
     // sora-editor engine (LGPL-2.1) — used as a dependency, no source vendored.
     implementation(libs.sora.editor)
     implementation(libs.sora.textmate)
+    implementation(libs.androidx.navigation.compose)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

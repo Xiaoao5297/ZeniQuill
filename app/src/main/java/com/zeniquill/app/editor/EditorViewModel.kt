@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 data class EditorTab(
     val uri: Uri,
     val displayName: String,
-    val initialContent: String,
+    var initialContent: String,
     val language: ZeniLanguage,
     var currentContent: String,
     var dirty: Boolean = false,
@@ -38,9 +38,12 @@ class EditorViewModel : ViewModel() {
     val settings: StateFlow<EditorSettings> = SettingsRepository.flow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, EditorSettings())
 
-    val recents: StateFlow<List<Uri>> = MutableStateFlow<List<Uri>>(emptyList())
-        .also { flow -> viewModelScope.launch { flow.emit(RecentFilesStore.recents()) } }
-        .asStateFlow()
+    private val _recents = MutableStateFlow<List<Uri>>(emptyList())
+    val recents: StateFlow<List<Uri>> = _recents.asStateFlow()
+
+    init {
+        viewModelScope.launch { _recents.value = RecentFilesStore.recents() }
+    }
 
     var toast by mutableStateOf<String?>(null)
         private set
@@ -51,7 +54,7 @@ class EditorViewModel : ViewModel() {
 
     fun refreshRecents() {
         viewModelScope.launch {
-            (recents as MutableStateFlow<List<Uri>>).emit(RecentFilesStore.recents())
+            _recents.value = RecentFilesStore.recents()
         }
     }
 
