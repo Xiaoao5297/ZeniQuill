@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
 fun MainNavHost() {
     val navController = rememberNavController()
     val viewModel: EditorViewModel = viewModel()
+    val appContext = androidx.compose.ui.platform.LocalContext.current.applicationContext
 
     // SAF "open document" launcher.
     var pendingOpen by remember { mutableStateOf(false) }
@@ -53,7 +54,7 @@ fun MainNavHost() {
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri != null) {
-            viewModel.openUri(applicationContext, uri)
+            viewModel.openUri(appContext, uri)
         }
     }
 

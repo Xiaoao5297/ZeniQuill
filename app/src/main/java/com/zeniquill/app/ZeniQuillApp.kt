@@ -11,6 +11,6 @@ class ZeniQuillApp : Application() {
         super.onCreate()
         SettingsRepository.init(this)
         RecentFilesStore.init(this)
-        TextMateRegistry.initContext(this)
+        // TextMateRegistry warms up lazily in MainActivity / on first editor creation.
     }
 }
