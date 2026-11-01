@@ -22,7 +22,6 @@ androidx-compose-material-icons-extended = { module = "androidx.compose.material
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 sora-editor = { module = "io.github.Rosemoe.sora-editor:editor", version.ref = "soraEditor" }
 sora-textmate = { module = "io.github.Rosemoe.sora-editor:language-textmate", version.ref = "soraEditor" }
-sora-oniguruma = { module = "io.github.Rosemoe.sora-editor:oniguruma-native", version.ref = "soraEditor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
