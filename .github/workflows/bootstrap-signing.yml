@@ -14,9 +14,6 @@ name: Bootstrap Signing Secrets
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
