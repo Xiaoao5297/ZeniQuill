@@ -97,10 +97,14 @@ fun SoraEditorView(
                     // Put a bit of breathing room between line numbers and the screen edge.
                     val dp = resources.displayMetrics.density
                     setDividerMargin(4f * dp, 4f * dp)
-                    // Slim, semi-transparent scrollbar thumb with a rounded look.
-                    setVerticalScrollbarThumbDrawable(ThumbDrawable())
-                    // Faint full-height track behind the thumb while scrolling.
-                    setVerticalScrollbarTrackDrawable(TrackDrawable())
+                    // Slim, semi-transparent scrollbar thumb with a rounded look
+                    // (same drawable for both orientations; it adapts to bounds).
+                    val thumb = ThumbDrawable()
+                    val track = TrackDrawable()
+                    setVerticalScrollbarThumbDrawable(thumb)
+                    setVerticalScrollbarTrackDrawable(track)
+                    setHorizontalScrollbarThumbDrawable(thumb)
+                    setHorizontalScrollbarTrackDrawable(track)
                     onEditorReady(this)
                 }
             },
@@ -119,9 +123,9 @@ fun SoraEditorView(
 }
 
 /**
- * Rounded, slim scrollbar thumb. sora-editor draws the thumb with its own
- * width; our drawable only decides how the color looks (semi-transparent
- * rounded bar with fade behavior inherited from the editor's fade timer).
+ * Rounded, slim scrollbar thumb shared by both orientations. The bar is
+ * drawn across the shorter dimension (55% thick) so vertical and horizontal
+ * scrollbars look identical. Fade behavior is inherited from the editor.
  */
 private class ThumbDrawable : Drawable() {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -133,15 +137,14 @@ private class ThumbDrawable : Drawable() {
 
     override fun draw(canvas: Canvas) {
         val b = bounds
-        val w = (b.width() * 0.55f).toInt().coerceAtLeast(1)
-        val x = b.centerX()
+        val thick = (minOf(b.width(), b.height()) * 0.55f).toInt().coerceAtLeast(1)
         canvas.drawRoundRect(
-            (x - w / 2f),
-            b.top.toFloat(),
-            (x + w / 2f),
-            b.bottom.toFloat(),
-            w / 2f,
-            w / 2f,
+            b.exactCenterX() - thick / 2f,
+            b.exactCenterY() - thick / 2f,
+            b.exactCenterX() + thick / 2f,
+            b.exactCenterY() + thick / 2f,
+            thick / 2f,
+            thick / 2f,
             paint,
         )
     }
@@ -161,8 +164,7 @@ private class ThumbDrawable : Drawable() {
 }
 
 /**
- * Full-height scrollbar track shown while holding the thumb. Very faint so
- * it reads as a background rather than a hard divider.
+ * Very faint scrollbar track shared by both orientations.
  */
 private class TrackDrawable : Drawable() {
     private val paint = Paint()
@@ -174,15 +176,14 @@ private class TrackDrawable : Drawable() {
 
     override fun draw(canvas: Canvas) {
         val b = bounds
-        val w = (b.width() * 0.55f).coerceAtLeast(1f)
-        val x = b.centerX()
+        val thick = minOf(b.width(), b.height()).coerceAtLeast(1f)
         canvas.drawRoundRect(
-            (x - w / 2f),
-            b.top.toFloat(),
-            (x + w / 2f),
-            b.bottom.toFloat(),
-            w / 2f,
-            w / 2f,
+            b.exactCenterX() - thick / 2f,
+            b.exactCenterY() - thick / 2f,
+            b.exactCenterX() + thick / 2f,
+            b.exactCenterY() + thick / 2f,
+            thick / 2f,
+            thick / 2f,
             paint,
         )
     }
