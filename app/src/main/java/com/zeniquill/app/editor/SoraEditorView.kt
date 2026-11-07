@@ -176,7 +176,7 @@ private class TrackDrawable : Drawable() {
 
     override fun draw(canvas: Canvas) {
         val b = bounds
-        val thick = minOf(b.width(), b.height()).coerceAtLeast(1f)
+        val thick = minOf(b.width(), b.height()).coerceAtLeast(1)
         canvas.drawRoundRect(
             b.exactCenterX() - thick / 2f,
             b.exactCenterY() - thick / 2f,
