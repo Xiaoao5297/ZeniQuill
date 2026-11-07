@@ -11,3 +11,7 @@
 # joni / jcodings (TextMate regex engine) load encoding tables reflectively.
 -keep class org.joni.** { *; }
 -keep class org.jcodings.** { *; }
+
+# sora-editor was compiled against an older Kotlin stdlib whose
+# Cloneable$DefaultImpls no longer exists; the reference is inert.
+-dontwarn kotlin.Cloneable$DefaultImpls
