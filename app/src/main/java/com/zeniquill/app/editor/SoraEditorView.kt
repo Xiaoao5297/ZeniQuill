@@ -87,7 +87,6 @@ private fun buildColorScheme(context: android.content.Context, darkTheme: Boolea
     val indentGuide = if (darkTheme) 0x3DFFFFFF.toInt() else 0x24000000.toInt()
 
     scheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, accent)
-    scheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_BORDER, accent)
     scheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
     scheme.setColor(EditorColorScheme.BLOCK_LINE, indentGuide)
     scheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, if (darkTheme) 0x66FFFFFF.toInt() else 0x4D000000.toInt())
