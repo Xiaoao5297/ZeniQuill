@@ -30,8 +30,18 @@ android {
     }
 
     buildTypes {
+        debug {
+            // R8 strips the ~58 MiB of unused material-icons-extended classes;
+            // keeps debug builds a fraction of the size at a small build-time cost.
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+        }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             val hasSigning = System.getenv("KEYSTORE_FILE") != null
             if (hasSigning) {
                 signingConfig = signingConfigs.getByName("release")
