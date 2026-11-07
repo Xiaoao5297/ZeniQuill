@@ -3,8 +3,9 @@
 # ever printed to the log or uploaded as an artifact; the keystore only ever
 # exists on the runner's filesystem and inside encrypted GitHub Secrets.
 #
-# Prerequisite: repo Settings -> Actions -> General -> Workflow permissions
-# must allow "Read and write permissions" (or a PAT with secrets:write).
+# GITHUB_TOKEN cannot write Actions secrets (hard GitHub limitation), so this
+# workflow uses a fine-grained PAT stored as the SIGNING_PAT secret (Actions
+# read+write permission). Delete SIGNING_PAT and this workflow file once done.
 #
 # Run manually from the Actions tab, then DELETE the workflow file in the
 # same commit series (it is guarded against re-running by the marker check).
@@ -20,9 +21,13 @@ jobs:
     steps:
       - name: Refuse to run if secrets already exist
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SIGNING_PAT }}
         run: |
           set -e
+          if [ -z "$GH_TOKEN" ]; then
+            echo "SIGNING_PAT secret is not set. Create a fine-grained PAT with Actions read+write and store it as SIGNING_PAT."
+            exit 1
+          fi
           if gh secret list --repo "$GITHUB_REPOSITORY" | grep -q KEYSTORE_BASE64; then
             echo "KEYSTORE_BASE64 already exists; refusing to overwrite. Delete the secret first if you really want to rotate."
             exit 1
@@ -36,7 +41,7 @@ jobs:
 
       - name: Generate keystore and write secrets
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SIGNING_PAT }}
         run: |
           set -e
           WORK=$(mktemp -d)
