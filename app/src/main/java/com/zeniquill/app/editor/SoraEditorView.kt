@@ -15,9 +15,50 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.zeniquill.app.highlight.TextMateRegistry
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
+import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
+import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.Magnifier
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+
+/**
+ * TextMate scheme that re-applies ZeniQuill's visual preferences after every
+ * theme load. TextMateColorScheme.setTheme() clears the color map and
+ * re-applies the theme JSON (applyDefault), which would wipe any colors set
+ * afterwards — including when the editor re-attaches the scheme. Overriding
+ * applyDefault() guarantees our overrides survive every (re)load:
+ * - matched bracket pair highlighted with an accent color instead of black
+ * - soft light-gray indent guides instead of purple
+ * - subtle scrollbar track behind the thumb
+ */
+private class ZeniColorScheme(
+    themeModel: ThemeModel,
+) : TextMateColorScheme(ThemeRegistry.getInstance(), themeModel) {
+
+    override fun applyDefault() {
+        // Theme JSON colors first...
+        super.applyDefault()
+        // ...then our preferences, so they always win over the theme.
+        // Note: applyDefault() also runs from the base constructor, before
+        // any Kotlin field of this class is initialized — so darkness is
+        // derived from isDark() (backed by the base's currentTheme, which is
+        // assigned before applyDefault() is invoked) instead of a field.
+        val dark = isDark()
+        val accent = if (dark) Color.parseColor("#82AAFF") else Color.parseColor("#296DFF")
+        val indentGuide = if (dark) 0x3DFFFFFF.toInt() else 0x24000000.toInt()
+        setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, accent)
+        setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+        setColor(EditorColorScheme.BLOCK_LINE, indentGuide)
+        setColor(
+            EditorColorScheme.BLOCK_LINE_CURRENT,
+            if (dark) 0x66FFFFFF.toInt() else 0x4D000000.toInt(),
+        )
+        setColor(
+            EditorColorScheme.SCROLL_BAR_TRACK,
+            if (dark) 0x14FFFFFF.toInt() else 0x0F000000.toInt(),
+        )
+    }
+}
 
 /**
  * Compose wrapper hosting a single sora-editor [CodeEditor] view.
@@ -68,30 +109,13 @@ fun SoraEditorView(
                 editor.setTabWidth(tabWidth)
                 editor.setWordwrap(wordWrap)
                 editor.setLineNumberEnabled(showLineNumbers)
-                editor.setColorScheme(buildColorScheme(context, darkTheme))
+                editor.setColorScheme(
+                    ZeniColorScheme(TextMateRegistry.createThemeBlocking(context, darkTheme))
+                )
                 onEditorReady(editor)
             },
         )
     }
-}
-
-/**
- * Base TextMate scheme patched with ZeniQuill's visual preferences:
- * - matched bracket pair highlighted with an accent color instead of black
- * - soft light-gray indent guides instead of purple
- * - subtle scrollbar track behind the thumb
- */
-private fun buildColorScheme(context: android.content.Context, darkTheme: Boolean): TextMateColorScheme {
-    val scheme = TextMateColorScheme.create(TextMateRegistry.createThemeBlocking(context, darkTheme))
-    val accent = if (darkTheme) Color.parseColor("#82AAFF") else Color.parseColor("#296DFF")
-    val indentGuide = if (darkTheme) 0x3DFFFFFF.toInt() else 0x24000000.toInt()
-
-    scheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, accent)
-    scheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
-    scheme.setColor(EditorColorScheme.BLOCK_LINE, indentGuide)
-    scheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, if (darkTheme) 0x66FFFFFF.toInt() else 0x4D000000.toInt())
-    scheme.setColor(EditorColorScheme.SCROLL_BAR_TRACK, if (darkTheme) 0x14FFFFFF.toInt() else 0x0F000000.toInt())
-    return scheme
 }
 
 /**
