@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import io.github.rosemoe.sora.widget.CodeEditor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,15 +73,20 @@ fun EditorScreen(
                     onOpenSettings = onOpenSettings,
                 )
             } else {
-                SoraEditorView(
-                    tab = currentTab,
-                    darkTheme = settings.darkTheme,
-                    fontSize = settings.fontSize,
-                    tabWidth = settings.tabWidth,
-                    wordWrap = settings.wordWrap,
-                    showLineNumbers = settings.showLineNumbers,
-                    onContentChanged = viewModel::updateContent,
-                )
+                val editorState = remember(currentTab.uri) { androidx.compose.runtime.mutableStateOf<CodeEditor?>(null) }
+                Column {
+                    SoraEditorView(
+                        tab = currentTab,
+                        darkTheme = settings.darkTheme,
+                        fontSize = settings.fontSize,
+                        tabWidth = settings.tabWidth,
+                        wordWrap = settings.wordWrap,
+                        showLineNumbers = settings.showLineNumbers,
+                        onContentChanged = viewModel::updateContent,
+                        onEditorReady = { editorState.value = it },
+                    )
+                    EditorActionBar(editor = editorState.value)
+                }
             }
         }
     }
