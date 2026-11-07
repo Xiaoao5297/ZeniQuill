@@ -46,7 +46,9 @@ jobs:
           trap 'rm -rf "$WORK"' EXIT
 
           KS_PASS=$(openssl rand -base64 24 | tr -d '/+=' )
-          KEY_PASS=$(openssl rand -base64 24 | tr -d '/+=' )
+          # PKCS12 keystores (keytool default) share one password for store
+          # and key; use the same value for both.
+          KEY_PASS="$KS_PASS"
           ALIAS="zeniquill"
 
           keytool -genkeypair \
